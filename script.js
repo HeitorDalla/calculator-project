@@ -7,7 +7,6 @@ class Calculator {
         this.reset = false;
     }
 
-    // Retorna a soma dos numeros passados como referência
     sum (n1, n2) {
         return n1 + n2;
     }
@@ -23,75 +22,74 @@ class Calculator {
     division (n1, n2) {
         try {
             if (n2 === 0) {
-                throw new Error("Divisao por zero!");
+                throw new Error("Divisão por zero!");
             }
             return n1 / n2;
         } catch (error) {
-            return `Erro: ${error.message}`
+            return `Erro: ${error.message}`;
         }
     }
 
     btnPress = (event) => {
         event.preventDefault();
         const button = event.target.textContent;
-        let currentExpressions = this.upperValue.textContent; // Pega o texto contido no container de cima do resultado
+        let currentExpressions = this.upperValue.textContent;
 
-        // Adicionando funcionalidades para o botao de AC
         if (button === 'AC') {
-            this.clearValue(); // Limpa o valor da calculadora
+            this.clearValue();
             return;
         }
 
         if (button === '=') {
-            const result = this.resolve(currentExpressions); // Resolve a conta
-            this.resultValue.textContent = result; // Mostra o resultado
+            const result = this.resolve(currentExpressions);
+            this.resultValue.textContent = result;
             this.upperValue.textContent = currentExpressions;
             this.reset = true;
             return;
         }
 
-        // Se o botão clicado foi um número
-        if (this.reset && /^\d+%/.test(button)) {
-            currentExpressions = '0';
+        if (this.reset && /^\d+$/.test(button)) {
+            currentExpressions = '';
             this.reset = false;
         }
 
-        // Substitui o zero inicial se for número
         if (currentExpressions === '0' && /^\d+$/.test(button)) {
             currentExpressions = button;
         } else {
-            currentExpressions = button;
+            currentExpressions += button;
         }
 
         this.upperValue.textContent = currentExpressions;
     }
 
-    clearValue (expressao) {
-        this.upperValue.textContent = '0'; // Limpa o texto contido em cima do resultado
-        this.resultValue.textContent = '0'; // Limpa o texto contido do resultado
-        this.reset = false; // Flag de controle
+    clearValue () {
+        this.upperValue.textContent = '0';
+        this.resultValue.textContent = '0';
+        this.reset = false;
     }
 
-    resolve () {
-        const tokens = expressao.replace(/x/g, '*').match(/(\d+\.?\d*|\+\|-|\*|\/)/g); // Expressão Regex
-        alert("teste");
+    resolve (expressao) {
+        const tokens = expressao.replace(/x/g, '*').match(/(\d+\.?\d*|\+|\-|\*|\/)/g);
         if (!tokens) {
             return `Erro`;
         }
+
         let stack = [];
 
         for (let i = 0; i < tokens.length; i++) {
             let token = tokens[i];
 
             if (token === '*' || token === '/') {
-                const n1 = parseFloat(stack.pop()); // Vai remover o ultimo numero da pilha
-                const n2 = parseFloat(tokens[++i]); // Vai pegar o próximo número
+                const n1 = parseFloat(stack.pop());
+                const n2 = parseFloat(tokens[++i]);
 
-                let result = token === '*' ? this.multiplication(n1, n2) : this.division(n1, n2); // Equação ternária
+                let result = token === '*' ? this.multiplication(n1, n2) : this.division(n1, n2);
 
                 if (typeof result === 'string') {
                     return result;
                 }
+
+                stack.push(result);
             } else {
                 stack.push(token);
             }
@@ -105,17 +103,14 @@ class Calculator {
             if (operator === '-') result = this.menos(result, num);
         }
 
-        return;
+        return result;
     }
 };
 
-document.addEventListener("DOMContentLoaded", (event) => {
-    event.preventDefault();
-
+document.addEventListener("DOMContentLoaded", () => {
     const calc = new Calculator();
-
-    const button = [...document.querySelectorAll(".btn")]; // Pegar todas as buttons do código
-    button.forEach((botao) => {
-        botao.addEventListener("click", calc.btnPress); // Adicionar um evento de click em todos os botoes
+    const buttons = [...document.querySelectorAll(".btn")];
+    buttons.forEach((botao) => {
+        botao.addEventListener("click", calc.btnPress);
     });
 });
